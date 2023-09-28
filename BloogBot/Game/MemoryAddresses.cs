@@ -244,7 +244,7 @@ namespace BloogBot.Game
                 LastHardwareAction = 0x00CF0BC8;
                 LocalPlayerSpellsBase = 0x00B700F0;
                 LocalPlayerClass = 0x00C27E81;
-                LocalPlayer_BackpackFirstItemOffset = 0x12C4; //0x850
+                LocalPlayer_BackpackFirstItemOffset = 0x850;
                 LocalPlayer_EquipmentFirstItemOffset = 0x2508;
                 LocalPlayerCanOverpower = 0x00000000; // unused in vanilla
                 WoWItem_ItemIdOffset = 0xC;

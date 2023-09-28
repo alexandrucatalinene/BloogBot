@@ -1,6 +1,7 @@
 ﻿using BloogBot.AI;
 using BloogBot.Game;
 using BloogBot.Game.Objects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,6 +19,23 @@ namespace FrostMageBot
         WoWItem foodItem;
         WoWItem drinkItem;
 
+        private static readonly List<string> s_FoodNames = new List<string> 
+        {
+            "Conjured Cinnamon Roll", "Conjured Croissant", "Conjured Pumpernickel", 
+            "Conjured Rye", "Conjured Muffin", "Conjured Sourdough", 
+            "Conjured Mana Pie", "Conjured Sweet Roll", "Conjured Bread", 
+            "Conjured Mana Strudel", "Conjured Mana Biscuit"
+        };
+
+        private static readonly List<string> s_DrinkNames = new List<string>
+        {
+            "Conjured Crystal Water", "Conjured Purified Water", "Conjured Fresh Water",
+            "Conjured Spring Water", "Conjured Water", "Conjured Mineral Water",
+            "Conjured Sparkling Water", "Conjured Glacier Water",
+            "Conjured Mountain Spring Water", "Conjured Mana Strudel",
+            "Conjured Mana Biscuit", "Conjured Mana Pie"
+        };
+
         public ConjureItemsState(Stack<IBotState> botStates, IDependencyContainer container)
         {
             this.botStates = botStates;
@@ -28,10 +46,10 @@ namespace FrostMageBot
         public void Update()
         {
             foodItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => i.Info.Name == container.BotSettings.Food);
+                .FirstOrDefault(i => s_FoodNames.Contains(i.Info.Name) || i.Info.Name == container.BotSettings.Food);
 
             drinkItem = Inventory.GetAllItems()
-                .FirstOrDefault(i => i.Info.Name == container.BotSettings.Drink);
+                .FirstOrDefault(i => s_DrinkNames.Contains(i.Info.Name) || i.Info.Name == container.BotSettings.Drink);
 
             if (player.IsCasting)
                 return;
@@ -49,7 +67,7 @@ namespace FrostMageBot
             {
                 botStates.Pop();
 
-                if (player.ManaPercent <= 70 && !ObjectManager.IsGrouped)
+                if (player.ManaPercent <= 70)
                     botStates.Push(new RestState(botStates, container));
 
                 return;

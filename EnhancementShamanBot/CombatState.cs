@@ -1,8 +1,6 @@
-﻿using BloogBot;
-using BloogBot.AI;
+﻿using BloogBot.AI;
 using BloogBot.AI.SharedStates;
 using BloogBot.Game;
-using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,21 +49,6 @@ namespace EnhancementShamanBot
                 botStates.Push(new HealSelfState(botStates, container));
                 return;
             }
-
-            //var checkTarget = ObjectManager.Units.FirstOrDefault(u => u.Guid == target.Guid);
-            //if (target.Health == 0 && !target.TappedByOther && ObjectManager.Aggressors.Count() == 0)
-            //{
-            //    player.StopAllMovement();
-
-            //    if ( && player.Class == Class.Warrior && player.CurrentStance != BattleStance) TryUseAbility(BattleStance);
-
-            //    if (Wait.For("PopCombatState", 1500))
-            //    {
-            //        botStates.Push(new LootState(botStates, container, target));
-            //    }
-
-            //    return;
-            //}
 
             if (base.Update())
                 return;

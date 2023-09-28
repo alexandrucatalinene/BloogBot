@@ -2,59 +2,56 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Data.SqlClient;
 using System.IO;
 using System.Reflection;
 
 namespace BloogBot
 {
-    internal class SqliteRepository : SqlRepository, IRepository
+    internal class TSqlRepository : SqlRepository, IRepository
     {
-        private string connectionString;
+        string connectionString;
 
-        public override void Initialize(string _)
+        public override void Initialize(string connectionString)
         {
+            this.connectionString = connectionString;
+
             string strExeFilePath = Assembly.GetExecutingAssembly().Location;
             string strWorkPath = Path.GetDirectoryName(strExeFilePath);
 
-            string dbPath = Path.Combine(strWorkPath, "db.db");
-            connectionString = $"Data Source={dbPath};Version=3;New=True;Compress=True;";
+            // Run TSqlSchema.SQL regardless - The SQL checks if tables exists before creating the
 
-            if (!File.Exists(dbPath))
+            using (var db = this.NewConnection())
             {
-                SQLiteConnection.CreateFile(dbPath);
-                using (var db = this.NewConnection())
-                {
-                    string script = File.ReadAllText(Path.Combine(strWorkPath, "SqliteSchema.SQL"));
-                    var command = this.NewCommand(script, db);
-                    db.Open();
-                    command.ExecuteNonQuery();
-                    db.Close();
-                }
+                string script = File.ReadAllText(Path.Combine(strWorkPath, "TSqlSchema.SQL"));
+                var command = this.NewCommand(script, db);
+                db.Open();
+                command.ExecuteNonQuery();
+                db.Close();
             }
         }
 
         public override dynamic NewConnection()
         {
-            return new SQLiteConnection(connectionString);
+            return new SqlConnection(connectionString);
         }
 
         public override dynamic NewCommand(string sql, dynamic db)
         {
-            return new SQLiteCommand(sql, db);
+            return new SqlCommand(sql, db);
         }
 
         public void AddBlacklistedMob(ulong guid)
         {
-            string sql = $"INSERT INTO BlacklistedMobs (Guid) VALUES ('{guid}');";
+            string sql = $"INSERT INTO BlacklistedMobs VALUES ('{guid}');";
 
             RunSqlQuery(sql);
         }
 
         public Hotspot AddHotspot(string description, string zone = "", string faction = "", string waypointsJson = "", Npc innkeeper = null, Npc repairVendor = null, Npc ammoVendor = null, int minLevel = 0, TravelPath travelPath = null, bool safeForGrinding = false, Position[] waypoints = null)
         {
-            string insertSql = $"INSERT INTO Hotspots (Zone, Description, Faction, Waypoints, InnkeeperId, RepairVendorId, AmmoVendorId, MinimumLevel, TravelPathId, SafeForGrinding) VALUES ('{zone}', '{description}', '{faction}', '{waypointsJson}', {innkeeper?.Id.ToString() ?? "NULL"}, {repairVendor?.Id.ToString() ?? "NULL"}, {ammoVendor?.Id.ToString() ?? "NULL"}, {minLevel}, {travelPath?.Id.ToString() ?? "NULL"}, {Convert.ToInt32(safeForGrinding)});";
-            string selectSql = $"SELECT * FROM Hotspots WHERE Description = '{description}' LIMIT 1;";
+            string insertSql = $"INSERT INTO Hotspots VALUES ('{zone}', '{description}', '{faction}', '{waypointsJson}', {innkeeper?.Id.ToString() ?? "NULL"}, {repairVendor?.Id.ToString() ?? "NULL"}, {ammoVendor?.Id.ToString() ?? "NULL"}, {minLevel}, {travelPath?.Id.ToString() ?? "NULL"}, {Convert.ToInt32(safeForGrinding)});";
+            string selectSql = $"SELECT TOP 1 * FROM Hotspots WHERE Description = '{description}';";
             int id;
 
             RunSqlQuery(insertSql);
@@ -78,8 +75,8 @@ namespace BloogBot
 
         public Npc AddNpc(string name, bool isInnkeeper, bool sellsAmmo, bool repairs, bool quest, bool horde, bool alliance, float positionX, float positionY, float positionZ, string zone)
         {
-            string insertSql = $"INSERT INTO Npcs (Name, IsInnKeeper, SellsAmmo, Repairs, Quest, Horde, Alliance, PositionX, PositionY, PositionZ, Zone) VALUES ('{name}', {Convert.ToInt32(isInnkeeper)}, {Convert.ToInt32(sellsAmmo)}, {Convert.ToInt32(repairs)}, {Convert.ToInt32(quest)}, {Convert.ToInt32(horde)}, {Convert.ToInt32(alliance)}, {positionX}, {positionY}, {positionZ}, '{zone}');";
-            string selectSql = $"SELECT * FROM Npcs WHERE Name = '{name}' LIMIT 1;";
+            string insertSql = $"INSERT INTO Npcs VALUES ('{name}', {Convert.ToInt32(isInnkeeper)}, {Convert.ToInt32(sellsAmmo)}, {Convert.ToInt32(repairs)}, {Convert.ToInt32(quest)}, {Convert.ToInt32(horde)}, {Convert.ToInt32(alliance)}, {positionX}, {positionY}, {positionZ}, '{zone}');";
+            string selectSql = $"SELECT TOP 1 * FROM Npcs WHERE Name = '{name}';";
 
             RunSqlQuery(insertSql);
 
@@ -107,13 +104,11 @@ namespace BloogBot
 
                 return npc;
             }
-
         }
 
         public void AddReportSignature(string playerName, int commandId)
         {
-            string sql = $"INSERT INTO ReportSignatures (Player, CommandId) VALUES ('{playerName}', {commandId})";
-
+            string sql = $"INSERT INTO ReportSignatures VALUES ('{playerName}', {commandId})";
 
             using (var db = NewConnection())
             {
@@ -122,14 +117,13 @@ namespace BloogBot
                 command.ExecuteNonQuery();
                 db.Close();
             }
-
         }
 
         public TravelPath AddTravelPath(string name, string waypointsJson)
         {
 
-            string insertSql = $"INSERT INTO TravelPaths (Name, Waypoints) VALUES ('{name}', '{waypointsJson}');";
-            string selectSql = $"SELECT * FROM TravelPaths WHERE Name = '{name}' LIMIT 1;";
+            string insertSql = $"INSERT INTO TravelPaths VALUES ('{name}', '{waypointsJson}');";
+            string selectSql = $"SELECT TOP 1 * FROM TravelPaths WHERE Name = '{name}';";
 
             TravelPath travelPath;
 
@@ -157,7 +151,7 @@ namespace BloogBot
 
         public bool BlacklistedMobExists(ulong guid)
         {
-            string sql = $"SELECT Id FROM BlacklistedMobs WHERE Guid = '{guid}' LIMIT 1;";
+            string sql = $"SELECT TOP 1 Id FROM BlacklistedMobs WHERE Guid = '{guid}';";
             return RowExistsSql(sql);
         }
 
@@ -220,10 +214,9 @@ namespace BloogBot
             }
 
         }
-
         public ReportSummary GetLatestReportSignatures()
         {
-            string sql = $"SELECT Id FROM Commands WHERE Command = '!report' ORDER BY Id DESC LIMIT 1";
+            string sql = $"SELECT TOP 1 Id FROM Commands WHERE Command = '!report' ORDER BY Id DESC";
 
             using (var db = NewConnection())
             {
@@ -264,7 +257,6 @@ namespace BloogBot
 
         }
 
-
         public List<ulong> ListBlacklistedMobs()
         {
             List<ulong> mobIds = new List<ulong>();
@@ -285,8 +277,6 @@ namespace BloogBot
                 return mobIds;
             }
         }
-
-        bool IsNotNullOrZero(dynamic value) => value != null && value.GetType() != typeof(DBNull) && value != 0;
 
         public List<Hotspot> ListHotspots()
         {
@@ -323,24 +313,20 @@ namespace BloogBot
                     var safeForGrinding = Convert.ToBoolean(reader["SafeForGrinding"]);
 
                     Npc innkeeper = null;
-                    var innkeeperId = reader["InnkeeperId"];
-                    if (IsNotNullOrZero(innkeeperId))
-                        innkeeper = ParseNpcFromQueryResult(reader, Convert.ToInt32(innkeeperId), "Innkeeper_");
+                    if (reader["InnkeeperId"].GetType() != typeof(DBNull))
+                        innkeeper = ParseNpcFromQueryResult(reader, Convert.ToInt32(reader["InnkeeperId"]), "Innkeeper_");
 
                     Npc repairVendor = null;
-                    var repairVendorId = reader["RepairVendorId"];
-                    if (IsNotNullOrZero(repairVendorId))
-                        repairVendor = ParseNpcFromQueryResult(reader, Convert.ToInt32(repairVendorId), "RepairVendor_");
+                    if (reader["RepairVendorId"].GetType() != typeof(DBNull))
+                        repairVendor = ParseNpcFromQueryResult(reader, Convert.ToInt32(reader["RepairVendorId"]), "RepairVendor_");
 
                     Npc ammoVendor = null;
-                    var ammoVendorId = reader["AmmoVendorId"];
-                    if (IsNotNullOrZero(ammoVendorId))
-                        ammoVendor = ParseNpcFromQueryResult(reader, Convert.ToInt32(ammoVendorId), "AmmoVendor_");
+                    if (reader["AmmoVendorId"].GetType() != typeof(DBNull))
+                        ammoVendor = ParseNpcFromQueryResult(reader, Convert.ToInt32(reader["AmmoVendorId"]), "AmmoVendor_");
 
                     TravelPath travelPath = null;
-                    var travelPathId = reader["TravelPathId"];
-                    if (IsNotNullOrZero(travelPathId))
-                        travelPath = ParseTravelPathFromQueryResult(reader, Convert.ToInt32(travelPathId), "TravelPath_");
+                    if (reader["TravelPathId"].GetType() != typeof(DBNull))
+                        travelPath = ParseTravelPathFromQueryResult(reader, Convert.ToInt32(reader["TravelPathId"]), "TravelPath_");
 
                     hotspots.Add(new Hotspot(
                         id,
@@ -397,7 +383,6 @@ namespace BloogBot
 
                 return npcs;
             }
-
         }
 
         public List<TravelPath> ListTravelPaths()
@@ -426,12 +411,11 @@ namespace BloogBot
 
                 return travelPaths;
             }
-
         }
 
         public bool NpcExists(string name)
         {
-            string sql = $"SELECT Id FROM Npcs WHERE Name = '{name}' LIMIT 1;";
+            string sql = $"SELECT TOP 1 Id FROM Npcs WHERE Name = '{name}';";
             return RowExistsSql(sql);
         }
 
@@ -443,9 +427,8 @@ namespace BloogBot
 
         public bool TravelPathExists(string name)
         {
-            string sql = $"SELECT Id FROM TravelPaths WHERE Name = '{name}' LIMIT 1";
+            string sql = $"SELECT TOP 1 Id FROM TravelPaths WHERE Name = '{name}'";
             return this.RowExistsSql(sql);
         }
-
     }
 }

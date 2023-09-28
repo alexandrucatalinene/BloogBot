@@ -1,11 +1,12 @@
 ﻿using BloogBot.Game;
+using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class EquipBagsState : BotState, IBotState
+    public class EquipBagsState : IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
@@ -29,7 +30,7 @@ namespace BloogBot.AI.SharedStates
             if (newBag == null)
                 newBag = Inventory
                     .GetAllItems()
-                    .FirstOrDefault(i => i.Info.ItemClass == Game.Enums.ItemClass.Container);
+                    .FirstOrDefault(i => i.Info.ItemClass == ItemClass.Container);
 
             if (newBag == null || Inventory.EmptyBagSlots == 0)
             {

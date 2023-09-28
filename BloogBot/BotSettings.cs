@@ -5,7 +5,10 @@ namespace BloogBot
 {
     public class BotSettings
     {
+        public string DatabaseType { get; set; }
         public string DatabasePath { get; set; }
+
+        public bool DiscordBotEnabled { get; set; }
 
         public string DiscordBotToken { get; set; }
 
@@ -130,7 +133,5 @@ namespace BloogBot
                 return unitReactions;
             }
         }
-
-        public bool DiscordBotEnabled { get; set; } = false;
     }
 }

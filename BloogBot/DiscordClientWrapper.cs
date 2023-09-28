@@ -24,7 +24,6 @@ namespace BloogBot
         static internal void Initialize(BotSettings botSettings)
         {
             discordBotEnabled = botSettings.DiscordBotEnabled;
-
             if (discordBotEnabled)
             { 
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;

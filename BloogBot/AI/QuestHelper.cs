@@ -82,13 +82,13 @@ namespace BloogBot.AI
         }
         public static QuestTask GetQuestTaskById(int id)
         {
-            QuestTemplate questTemplate = SqliteRepository.GetQuestTemplateByID(id);
+            QuestTemplate questTemplate = QuestRepository.GetQuestTemplateByID(id);
             if (questTemplate == null)
             {
                 return null;
             }
 
-            List<int> relatedNpcIds = SqliteRepository.GetQuestRelatedNPCsByQuestId(id);
+            List<int> relatedNpcIds = QuestRepository.GetQuestRelatedNPCsByQuestId(id);
 
             List<Creature> relatedNpcs = new List<Creature>();
 
@@ -100,7 +100,7 @@ namespace BloogBot.AI
 
             for (int i = 0; i < relatedNpcIds.Count; i++)
             {
-                relatedNpcs.AddRange(SqliteRepository.GetCreaturesById((ulong)relatedNpcIds[i]));
+                relatedNpcs.AddRange(QuestRepository.GetCreaturesById((ulong)relatedNpcIds[i]));
             }
 
             if (relatedNpcs.Count > 0)
@@ -109,7 +109,7 @@ namespace BloogBot.AI
                     new Position(x.PositionX, x.PositionY, x.PositionZ).DistanceTo(ObjectManager.Player.Position)
                         .CompareTo(new Position(y.PositionX, y.PositionY, y.PositionZ).DistanceTo(ObjectManager.Player.Position)));
 
-                CreatureTemplate creatureTemplate = SqliteRepository.GetCreatureTemplateById((ulong)relatedNpcIds[0]);
+                CreatureTemplate creatureTemplate = QuestRepository.GetCreatureTemplateById((ulong)relatedNpcIds[0]);
 
                 questTask.TurnInNpc = new BloogBot.Models.Npc
                 {
@@ -149,22 +149,22 @@ namespace BloogBot.AI
 
             if (questTemplate.RewChoiceItemId1 != 0)
             {
-                questTask.RewardItem1 = SqliteRepository.GetItemById(questTemplate.RewChoiceItemId1);
+                questTask.RewardItem1 = QuestRepository.GetItemById(questTemplate.RewChoiceItemId1);
                 if (questTemplate.RewChoiceItemId2 != 0)
                 {
-                    questTask.RewardItem2 = SqliteRepository.GetItemById(questTemplate.RewChoiceItemId2);
+                    questTask.RewardItem2 = QuestRepository.GetItemById(questTemplate.RewChoiceItemId2);
                     if (questTemplate.RewChoiceItemId3 != 0)
                     {
-                        questTask.RewardItem3 = SqliteRepository.GetItemById(questTemplate.RewChoiceItemId3);
+                        questTask.RewardItem3 = QuestRepository.GetItemById(questTemplate.RewChoiceItemId3);
                         if (questTemplate.RewChoiceItemId4 != 0)
                         {
-                            questTask.RewardItem4 = SqliteRepository.GetItemById(questTemplate.RewChoiceItemId4);
+                            questTask.RewardItem4 = QuestRepository.GetItemById(questTemplate.RewChoiceItemId4);
                             if (questTemplate.RewChoiceItemId5 != 0)
                             {
-                                questTask.RewardItem5 = SqliteRepository.GetItemById(questTemplate.RewChoiceItemId5);
+                                questTask.RewardItem5 = QuestRepository.GetItemById(questTemplate.RewChoiceItemId5);
                                 if (questTemplate.RewChoiceItemId6 != 0)
                                 {
-                                    questTask.RewardItem6 = SqliteRepository.GetItemById(questTemplate.RewChoiceItemId6);
+                                    questTask.RewardItem6 = QuestRepository.GetItemById(questTemplate.RewChoiceItemId6);
                                 }
                             }
                         }
@@ -267,14 +267,14 @@ namespace BloogBot.AI
                 case 1:
                     if (questTemplate.ReqItemId1 != 0)
                     {
-                        creatures = SqliteRepository.GetCreaturesByLootableItemId(questTemplate.ReqItemId1);
-                        gameObjects = SqliteRepository.GetGameObjectByLootableItemId(questTemplate.ReqItemId1);
+                        creatures = QuestRepository.GetCreaturesByLootableItemId(questTemplate.ReqItemId1);
+                        gameObjects = QuestRepository.GetGameObjectByLootableItemId(questTemplate.ReqItemId1);
 
                         questObjective.ReqItemQty = questTemplate.ReqItemCount1;
                     }
                     else if (questObjective.TargetCreatureId != 0)
                     {
-                        List<Creature> questCreatures = SqliteRepository.GetCreaturesById(questObjective.TargetCreatureId);
+                        List<Creature> questCreatures = QuestRepository.GetCreaturesById(questObjective.TargetCreatureId);
 
                         foreach (Creature creature in questCreatures)
                         {
@@ -283,20 +283,20 @@ namespace BloogBot.AI
                     }
                     else if (questObjective.TargetGameObjectId != 0)
                     {
-                        gameObjects = SqliteRepository.GetGameObjectsById(questObjective.TargetGameObjectId);
+                        gameObjects = QuestRepository.GetGameObjectsById(questObjective.TargetGameObjectId);
                     }
                     break;
                 case 2:
                     if (questTemplate.ReqItemId2 != 0)
                     {
-                        creatures = SqliteRepository.GetCreaturesByLootableItemId(questTemplate.ReqItemId2);
-                        gameObjects = SqliteRepository.GetGameObjectByLootableItemId(questTemplate.ReqItemId2);
+                        creatures = QuestRepository.GetCreaturesByLootableItemId(questTemplate.ReqItemId2);
+                        gameObjects = QuestRepository.GetGameObjectByLootableItemId(questTemplate.ReqItemId2);
 
                         questObjective.ReqItemQty = questTemplate.ReqItemCount2;
                     }
                     else if (questObjective.TargetCreatureId != 0)
                     {
-                        List<Creature> questCreatures = SqliteRepository.GetCreaturesById(questObjective.TargetCreatureId);
+                        List<Creature> questCreatures = QuestRepository.GetCreaturesById(questObjective.TargetCreatureId);
 
                         foreach (Creature creature in questCreatures)
                         {
@@ -305,20 +305,20 @@ namespace BloogBot.AI
                     }
                     else if (questObjective.TargetGameObjectId != 0)
                     {
-                        gameObjects = SqliteRepository.GetGameObjectsById(questObjective.TargetGameObjectId);
+                        gameObjects = QuestRepository.GetGameObjectsById(questObjective.TargetGameObjectId);
                     }
                     break;
                 case 3:
                     if (questTemplate.ReqItemId3 != 0)
                     {
-                        creatures = SqliteRepository.GetCreaturesByLootableItemId(questTemplate.ReqItemId3);
-                        gameObjects = SqliteRepository.GetGameObjectByLootableItemId(questTemplate.ReqItemId3);
+                        creatures = QuestRepository.GetCreaturesByLootableItemId(questTemplate.ReqItemId3);
+                        gameObjects = QuestRepository.GetGameObjectByLootableItemId(questTemplate.ReqItemId3);
 
                         questObjective.ReqItemQty = questTemplate.ReqItemCount3;
                     }
                     else if (questObjective.TargetCreatureId != 0)
                     {
-                        List<Creature> questCreatures = SqliteRepository.GetCreaturesById(questObjective.TargetCreatureId);
+                        List<Creature> questCreatures = QuestRepository.GetCreaturesById(questObjective.TargetCreatureId);
 
                         foreach (Creature creature in questCreatures)
                         {
@@ -327,20 +327,20 @@ namespace BloogBot.AI
                     }
                     else if (questObjective.TargetGameObjectId != 0)
                     {
-                        gameObjects = SqliteRepository.GetGameObjectsById(questObjective.TargetGameObjectId);
+                        gameObjects = QuestRepository.GetGameObjectsById(questObjective.TargetGameObjectId);
                     }
                     break;
                 case 4:
                     if (questTemplate.ReqItemId4 != 0)
                     {
-                        creatures = SqliteRepository.GetCreaturesByLootableItemId(questTemplate.ReqItemId4);
-                        gameObjects = SqliteRepository.GetGameObjectByLootableItemId(questTemplate.ReqItemId4);
+                        creatures = QuestRepository.GetCreaturesByLootableItemId(questTemplate.ReqItemId4);
+                        gameObjects = QuestRepository.GetGameObjectByLootableItemId(questTemplate.ReqItemId4);
 
                         questObjective.ReqItemQty = questTemplate.ReqItemCount4;
                     }
                     else if (questObjective.TargetCreatureId != 0)
                     {
-                        List<Creature> questCreatures = SqliteRepository.GetCreaturesById(questObjective.TargetCreatureId);
+                        List<Creature> questCreatures = QuestRepository.GetCreaturesById(questObjective.TargetCreatureId);
 
                         foreach (Creature creature in questCreatures)
                         {
@@ -349,7 +349,7 @@ namespace BloogBot.AI
                     }
                     else if (questObjective.TargetGameObjectId != 0)
                     {
-                        gameObjects = SqliteRepository.GetGameObjectsById(questObjective.TargetGameObjectId);
+                        gameObjects = QuestRepository.GetGameObjectsById(questObjective.TargetGameObjectId);
                     }
                     break;
             }

@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class RetrieveCorpseState : BotState, IBotState
+    public class RetrieveCorpseState : IBotState
     {
         const int resDistance = 30;
 
@@ -30,11 +30,6 @@ namespace BloogBot.AI.SharedStates
 
         public void Update()
         {
-            if (ObjectManager.Player.Health > 0)
-            {
-                botStates.Pop();
-            }
-
             if (!initialized)
             {
                 // corpse position is wrong immediately after releasing, so we wait for 5s.
@@ -85,7 +80,7 @@ namespace BloogBot.AI.SharedStates
 
                 initialized = true;
 
-                botStates.Push(new MoveToPositionState(botStates, container, resLocation));
+                botStates.Push(new MoveToPositionState(botStates, container, resLocation, true));
                 return;
             }
 

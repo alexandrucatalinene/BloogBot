@@ -10,13 +10,7 @@ namespace BloogBot
 
         static ClientHelper()
         {
-
-            var wowProcesses = Process.GetProcessesByName("WoW");
-
-            if(wowProcesses == null || wowProcesses.Length == 0)
-                throw new ApplicationException("Wow process is not started!");
-
-            var clientVersion = wowProcesses[0].MainModule.FileVersionInfo.FileVersion;
+            var clientVersion = Process.GetProcessesByName("WoW")[0].MainModule.FileVersionInfo.FileVersion;
 
             if (clientVersion == "3, 3, 5, 12340")
             {

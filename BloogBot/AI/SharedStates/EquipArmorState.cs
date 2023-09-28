@@ -1,12 +1,13 @@
 ﻿using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class EquipArmorState : BotState, IBotState
+    public class EquipArmorState : IBotState
     {
         static readonly IDictionary<Class, ItemSubclass> desiredArmorTypes = new Dictionary<Class, ItemSubclass>
         {

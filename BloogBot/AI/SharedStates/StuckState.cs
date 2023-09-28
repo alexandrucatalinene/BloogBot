@@ -4,10 +4,11 @@ using BloogBot.Game.Objects;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class StuckState : BotState, IBotState
+    public class StuckState : IBotState
     {
         static readonly Stopwatch stopwatch = new Stopwatch();
         static readonly Random random = new Random();
@@ -29,7 +30,13 @@ namespace BloogBot.AI.SharedStates
 
         public void Update()
         {
-            if (player.Position.DistanceTo(startingPosition) > 3)
+            var wpStuckCount = player.WpStuckCount+1;
+            var posDistance = wpStuckCount < 5 || (player.InGhostForm && wpStuckCount > 10) ? 3 : random.Next(wpStuckCount, (wpStuckCount*20));
+            var currWp = container.GetCurrentHotspot().Waypoints.Where(x => x.ID == player.CurrWpId).FirstOrDefault();
+            var wpDistance = currWp == null ? 100 : player.Position.DistanceTo(currWp);
+
+            if (player.Position.DistanceTo(startingPosition) > posDistance || player.IsInCombat 
+                || wpDistance < 3)
             {
                 StopMovement();
                 botStates.Pop();
@@ -38,7 +45,8 @@ namespace BloogBot.AI.SharedStates
 
             if (state == State.Moving)
             {
-                if (stopwatch.ElapsedMilliseconds > 150)
+                var moveTime = (100 * posDistance) / 3;
+                if (stopwatch.ElapsedMilliseconds > moveTime)
                     state = State.Stuck;
                 return;
             }

@@ -24,6 +24,11 @@ namespace BloogBot.AI.SharedStates
         bool noLos;
         int noLosStartTime;
 
+        private int loopTimer;
+        private int lastTargetHealth;
+
+        static readonly Random random = new Random();
+
         public CombatStateBase(Stack<IBotState> botStates, IDependencyContainer container, WoWUnit target, int desiredRange)
         {
             player = ObjectManager.Player;
@@ -35,10 +40,29 @@ namespace BloogBot.AI.SharedStates
             this.desiredRange = desiredRange;
 
             WoWEventHandler.OnErrorMessage += OnErrorMessageCallback;
+
+            loopTimer = 0;
         }
 
         public bool Update()
         {
+            if (player.DeathsAtWp > 2 && player.CurrWpId != 0)
+            {
+                // Select new waypoint based on links
+                var hotspot = container.GetCurrentHotspot();
+                var waypoint = hotspot.Waypoints.Where(x => x.ID == player.CurrWpId).FirstOrDefault();
+                string wpLinks = waypoint.Links.Replace(":0", "");
+                if (wpLinks.EndsWith(" "))
+                    wpLinks = wpLinks.Remove(wpLinks.Length - 1);
+                string[] linkSplit = wpLinks.Split(' ');
+                int randLink = random.Next() % linkSplit.Length;
+                var linkWp = hotspot.Waypoints.Where(x => x.ID == int.Parse(linkSplit[randLink])).FirstOrDefault();
+
+                Console.WriteLine($"Forcing movement to linked WP: {linkWp.ID} after release due to deathcount > 2");
+                player.MoveToward(waypoint);
+                player.DeathsAtWp = 0;
+            }
+
             // melee classes occasionally end up in a weird state where they are too close to hit the mob,
             // so we backpedal a bit to correct the position
             if (backpedaling && Environment.TickCount - backpedalStartTime > 500)
@@ -56,6 +80,39 @@ namespace BloogBot.AI.SharedStates
                 player.StopMovement(ControlBits.Front);
                 noLos = false;
             }
+
+            if (loopTimer == 0)
+                lastTargetHealth = target.Health;
+            loopTimer++;
+            if (loopTimer > 150)
+            {
+                if (target.Health == lastTargetHealth)
+                {
+                    var ran = random.Next(0, 4);
+                    if (ran == 0 && loopTimer < 160)
+                    {
+                        player.StartMovement(ControlBits.Back);
+                        player.StartMovement(ControlBits.StrafeLeft);
+                        player.Jump();
+                    }
+                    else if (ran == 1 && loopTimer < 160)
+                    {
+                        player.StartMovement(ControlBits.Back);
+                        player.StartMovement(ControlBits.StrafeRight);
+                        player.Jump();
+                    }
+                    else
+                    {
+                        player.StopAllMovement();
+                        var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, target.Position, false);
+                        player.MoveToward(nextWaypoint);
+                    }
+                    if (loopTimer > 200)
+                        loopTimer = 0;
+                    return true;
+                }
+            }
+
             if (noLos)
             {
                 var nextWaypoint = Navigation.GetNextWaypoint(ObjectManager.MapId, player.Position, target.Position, false);
@@ -64,7 +121,7 @@ namespace BloogBot.AI.SharedStates
             }
 
             // see if somebody else stole the mob we were targeting
-            if (target.TappedByOther)
+            if (target.TappedByOther || player.Health <= 0)
             {
                 CleanUp();
                 return true;

@@ -55,8 +55,28 @@ wchar_t* dllLocation = NULL;
 unsigned __stdcall ThreadMain(void* pParam)
 {
 	AllocConsole();
-	FILE* conout;
-	freopen_s(&conout, "CONOUT$", "w", stdout);
+	freopen("CONOUT$", "w", stdout);
+
+#if _DEBUG
+	std::cout << std::string("Attach a debugger now to WoW.exe if you want to debug Loader.dll. Waiting 10 seconds...") << std::endl;
+
+	HANDLE hEvent = CreateEvent(nullptr, TRUE, FALSE, L"MyDebugEvent");
+	WaitForSingleObject(hEvent, 10000);  // Wait for 10 seconds
+	bool isDebuggerAttached = IsDebuggerPresent() != FALSE;
+
+	if (isDebuggerAttached)
+	{
+		std::cout << std::string("Debugger found.") << std::endl;
+	}
+	else
+	{
+		std::cout << std::string("Debugger not found.") << std::endl;
+	}
+
+	SetEvent(hEvent);
+	CloseHandle(hEvent);
+#endif
+
 
 	HRESULT hr = CLRCreateInstance(CLSID_CLRMetaHostPolicy, IID_ICLRMetaHostPolicy, (LPVOID*)&g_pMetaHost);
 
@@ -164,7 +184,7 @@ unsigned __stdcall ThreadMain(void* pParam)
 
 		default:
 			char buff[128];
-			sprintf_s(buff, "Result is: 0x%lx", hr);
+			sprintf(buff, "Result is: 0x%lx", hr);
 			MessageBoxA(NULL, buff, "Info", 0);
 			break;
 		}

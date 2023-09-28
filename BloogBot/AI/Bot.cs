@@ -4,9 +4,9 @@ using BloogBot.Game.Enums;
 using BloogBot.UI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -15,6 +15,7 @@ namespace BloogBot.AI
     public abstract class Bot
     {
         readonly Stack<IBotState> botStates = new Stack<IBotState>();
+        readonly Stopwatch stopwatch = new Stopwatch();
 
         bool running;
         bool retrievingCorpse;
@@ -71,7 +72,7 @@ namespace BloogBot.AI
                 Logger.Log(e);
             }
         }
-        
+
         public void Travel(IDependencyContainer container, bool reverseTravelPath, Action callback)
         {
             try
@@ -124,7 +125,7 @@ namespace BloogBot.AI
             }
         }
 
-        public void StartPowerlevel(IDependencyContainer container,Action stopCallback)
+        public void StartPowerlevel(IDependencyContainer container, Action stopCallback)
         {
             this.stopCallback = stopCallback;
 
@@ -157,6 +158,8 @@ namespace BloogBot.AI
             {
                 try
                 {
+                    stopwatch.Restart();
+
                     ThreadSynchronizer.RunOnMainThread(() =>
                     {
                         if (botStates.Count() == 0)
@@ -249,7 +252,7 @@ namespace BloogBot.AI
                         // offhand throwns don't have durability, but instead register `-2147483648`.
                         // This is a workaround to prevent that from causing us to get caught in a loop.
                         // We default to a durability value of 100 for items that are null because 100 will register them as not needing repaired.
-                        if ((mainhandDurability <= 20 && mainhandDurability > -1 || (offhandDurability <= 20 && offhandDurability > -1)) && currentHotspot?.RepairVendor != null && !container.RunningErrands)
+                        if ((mainhandDurability <= 20 && mainhandDurability > -1 || (offhandDurability <= 20 && offhandDurability > -1)) && currentHotspot.RepairVendor != null && !container.RunningErrands)
                         {
                             ShapeshiftToHumanForm(container);
                             PopStackToBaseState();
@@ -275,6 +278,8 @@ namespace BloogBot.AI
                     });
 
                     await Task.Delay(25);
+
+                    container.Probe.UpdateLatency = $"{stopwatch.ElapsedMilliseconds}ms";
                 }
                 catch (Exception e)
                 {
@@ -289,6 +294,8 @@ namespace BloogBot.AI
             {
                 try
                 {
+                    stopwatch.Restart();
+
                     ThreadSynchronizer.RunOnMainThread(() =>
                     {
                         if (botStates.Count() == 0)
@@ -298,14 +305,6 @@ namespace BloogBot.AI
                         }
 
                         var player = ObjectManager.Player;
-
-                        if(player.Pointer == IntPtr.Zero)
-                        {
-                            var msg = $"Hey, player lost reference and is in state {currentState.Name}. I'm stopping for now.";
-                            LogToFile(msg);
-                            Stop();
-                            return;
-                        }
 
                         if (player.Level > currentLevel)
                         {
@@ -421,7 +420,7 @@ namespace BloogBot.AI
                         }
 
                         // if inventory is full
-                        if (Inventory.CountFreeSlots(false) == 0 && currentHotspot?.Innkeeper != null && !container.RunningErrands)
+                        if (Inventory.CountFreeSlots(false) == 0 && currentHotspot.Innkeeper != null && !container.RunningErrands)
                         {
                             ShapeshiftToHumanForm(container);
                             PopStackToBaseState();
@@ -433,7 +432,7 @@ namespace BloogBot.AI
                                 botStates.Push(new TravelState(botStates, container, currentHotspot.TravelPath.Waypoints, 0));
                                 botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.TravelPath.Waypoints[0]));
                             }
-                            
+
                             botStates.Push(new SellItemsState(botStates, container, currentHotspot.Innkeeper.Name));
                             botStates.Push(new MoveToPositionState(botStates, container, currentHotspot.Innkeeper.Position));
                             container.CheckForTravelPath(botStates, true);
@@ -445,8 +444,10 @@ namespace BloogBot.AI
                             botStates.Peek()?.Update();
                         }
                     });
-                    
-                    await Task.Delay(25);
+
+                    await Task.Delay(50);
+
+                    container.Probe.UpdateLatency = $"{stopwatch.ElapsedMilliseconds}ms";
                 }
                 catch (Exception e)
                 {

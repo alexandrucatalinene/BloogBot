@@ -88,7 +88,7 @@ namespace BloogBot.AI
             foreach(EquipSlot equipSlot in Enum.GetValues(typeof(EquipSlot)))
             {
                 ulong itemGuid = ObjectManager.Player.GetEquippedItemGuid(equipSlot);
-                allItems.Add(SqliteRepository.GetItemById(itemGuid));
+                allItems.Add(QuestRepository.GetItemById(itemGuid));
             }
 
             CharacterEquip bestEquip = FindBestGearSetup(allItems);

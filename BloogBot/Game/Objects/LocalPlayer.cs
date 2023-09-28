@@ -1,6 +1,7 @@
 ﻿using BloogBot.Game.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using static BloogBot.AI.QuestHelper;
@@ -223,7 +224,6 @@ namespace BloogBot.Game.Objects
             );
 
         public void Stand() => LuaCall("DoEmote(\"STAND\")");
-        public string GetRace() => LuaCallWithResults($"{{0}} = UnitRace(\"player\")")[0];
 
         public string CurrentStance
         {
@@ -339,7 +339,7 @@ namespace BloogBot.Game.Objects
                 if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
                 {
                     var spellsBasePtr = MemoryManager.ReadIntPtr((IntPtr)0x00C0D788);
-                    var spellPtr = MemoryManager.ReadIntPtr(spellsBasePtr + currentSpellId * 4);
+                    var spellPtr =  MemoryManager.ReadIntPtr(spellsBasePtr + currentSpellId * 4);
 
                     var spellNamePtr = MemoryManager.ReadIntPtr(spellPtr + 0x1E0);
                     name = MemoryManager.ReadString(spellNamePtr);
@@ -399,8 +399,8 @@ namespace BloogBot.Game.Objects
                 if (parId >= MemoryManager.ReadUint((IntPtr)(0x00C0D780 + 0xC)) || parId <= 0)
                     return 0;
 
-                var entryPtr = MemoryManager.ReadIntPtr((IntPtr)(uint)(MemoryManager.ReadUint((IntPtr)(0x00C0D780 + 8)) + parId * 4));
-                return MemoryManager.ReadInt(entryPtr + 0x0080);
+                var entryPtr = MemoryManager.ReadIntPtr((IntPtr)((uint)(MemoryManager.ReadUint((IntPtr)(0x00C0D780 + 8)) + parId * 4)));
+                return MemoryManager.ReadInt((entryPtr + 0x0080));
             }
             else
             {
@@ -459,7 +459,8 @@ namespace BloogBot.Game.Objects
 
         public void CastSpellAtPosition(string spellName, Position position)
         {
-            Functions.CastAtPosition(spellName, position);
+            return;
+            // Functions.CastAtPosition(spellName, position);
         }
 
         public bool IsAutoRepeating(string name)
@@ -488,14 +489,44 @@ namespace BloogBot.Game.Objects
             return false;
         }
 
-        public void EquipItemByName(string name)
-        {
-            LuaCall(string.Format("EquipItemByName({0})", name));
-        }
-
         private static string FormatLua(string str, params object[] names)
         {
             return string.Format(str, names.Select(s => s.ToString().Replace("'", "\\'").Replace("\"", "\\\"")).ToArray());
         }
+
+        // Keep track of current zone
+        private static string m_CurrZone;
+        public string CurrZone { get { return m_CurrZone; } set { m_CurrZone = value; } }
+
+        // Keep track of current WP
+        private static int m_CurrWpId;
+        public int CurrWpId { get { return m_CurrWpId; } set { m_CurrWpId = value; } }
+
+        // Keep track of last WP visited
+        private static int m_LastWpId;
+        public int LastWpId { get { return m_LastWpId; } set { m_LastWpId = value; } }
+
+        // Keep track of deaths at WP
+        private static int m_DeathsAtWp;
+        public int DeathsAtWp { get { return m_DeathsAtWp; } set { m_DeathsAtWp = value; } }
+
+        private static int m_WpStuckCount;
+        public int WpStuckCount { get { return m_WpStuckCount; } set { m_WpStuckCount = value; } }
+
+        private static bool m_HasOverleveled;
+        public bool HasOverLeveled { get { return m_HasOverleveled; } set { m_HasOverleveled = value; } }
+
+        private static List<int> m_ForcedWpPath;
+        public List<int> ForcedWpPath { get { return m_ForcedWpPath; } set { m_ForcedWpPath = value; } }
+
+        private static HashSet<int> m_VisitedWps;
+        public bool HasVisitedWp(int id)
+        {
+            return m_VisitedWps.Contains(id);
+        }
+        public HashSet<int> VisitedWps { get { return m_VisitedWps; } set { m_VisitedWps = value; } }
+
+        private static HashSet<int> m_BlackListedWps = new HashSet<int> {35, 118, 168, 993, 1100, 1359, 1364, 1369, 1426, 1438, 1444, 1445, 1456, 1462, 1463, 1464, 1465, 1466, 1614};
+        public HashSet<int> BlackListedWps { get { return m_BlackListedWps; } set { m_BlackListedWps = value; } }
     }
 }

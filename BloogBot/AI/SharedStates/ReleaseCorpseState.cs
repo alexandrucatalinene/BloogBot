@@ -1,12 +1,16 @@
 ﻿using BloogBot.Game;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace BloogBot.AI.SharedStates
 {
-    public class ReleaseCorpseState : BotState, IBotState
+    public class ReleaseCorpseState : IBotState
     {
         readonly Stack<IBotState> botStates;
         readonly IDependencyContainer container;
+        static readonly Random random = new Random();
 
         public ReleaseCorpseState(Stack<IBotState> botStates, IDependencyContainer container)
         {
@@ -16,11 +20,6 @@ namespace BloogBot.AI.SharedStates
 
         public void Update()
         {
-            if (ObjectManager.Player.Health > 0)
-            {
-                botStates.Pop();
-                return;
-            }
             if (Wait.For("StartReleaseCorpseStateDelay", 1000))
             {
                 if (!ObjectManager.Player.InGhostForm)
@@ -29,6 +28,7 @@ namespace BloogBot.AI.SharedStates
                 {
                     if (Wait.For("LeaveReleaseCorpseStateDelay", 2000))
                     {
+                        ObjectManager.Player.WpStuckCount = 0;
                         botStates.Pop();
                         return;
                     }

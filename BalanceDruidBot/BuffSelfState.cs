@@ -2,6 +2,7 @@
 using BloogBot.Game;
 using BloogBot.Game.Objects;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace BalanceDruidBot
 {

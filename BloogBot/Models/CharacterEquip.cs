@@ -10,75 +10,75 @@ namespace BloogBot.Models
         {
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Head) != 0)
             {
-                HeadItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Head));
+                HeadItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Head));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Neck) != 0)
             {
-                NeckItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Neck));
+                NeckItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Neck));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Shoulders) != 0)
             {
-                ShoulderItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Shoulders));
+                ShoulderItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Shoulders));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Back) != 0)
             {
-                BackItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Back));
+                BackItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Back));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Chest) != 0)
             {
-                ChestItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Chest));
+                ChestItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Chest));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Wrist) != 0)
             {
-                WristItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Wrist));
+                WristItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Wrist));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Hands) != 0)
             {
-                HandItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Hands));
+                HandItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Hands));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Waist) != 0)
             {
-                WaistItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Waist));
+                WaistItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Waist));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Legs) != 0)
             {
-                LegItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Legs));
+                LegItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Legs));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Feet) != 0)
             {
-                FeetItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Feet));
+                FeetItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Feet));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Finger1) != 0)
             {
-                Finger1Item = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Finger1));
+                Finger1Item = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Finger1));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Finger2) != 0)
             {
-                Finger2Item = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Finger2));
+                Finger2Item = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Finger2));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Trinket1) != 0)
             {
-                Trinket1Item = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Trinket1));
+                Trinket1Item = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Trinket1));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Trinket2) != 0)
             {
-                Trinket2Item = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Trinket2));
+                Trinket2Item = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Trinket2));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.MainHand) != 0)
             {
-                MainHandItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.MainHand));
+                MainHandItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.MainHand));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.OffHand) != 0)
             {
-                OffHandItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.OffHand));
+                OffHandItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.OffHand));
             }
             if (ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Ranged) != 0)
             {
-                RangedItem = SqliteRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Ranged));
+                RangedItem = QuestRepository.GetItemById(ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.Ranged));
             }
             //if (ObjectManager.Player.GetEquippedItemGuid(wManager.Wow.Enums.InventorySlot.INVSLOT_AMMO) != 0)
             //{
-            //    AmmoItem = SqliteRepository.GetItemById((int)ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.A));
+            //    AmmoItem = QuestRepository.GetItemById((int)ObjectManager.Player.GetEquippedItemGuid(Game.Enums.EquipSlot.A));
             //}
         }
         public Item HeadItem { get; set; }
