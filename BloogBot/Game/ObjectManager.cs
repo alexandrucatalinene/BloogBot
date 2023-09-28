@@ -1,5 +1,8 @@
-﻿using BloogBot.Game.Enums;
+﻿using BloogBot.AI;
+using BloogBot.AI.SharedStates;
+using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
+using BloogBot.Models.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +13,7 @@ namespace BloogBot.Game
 {
     public class ObjectManager
     {
-        const int OBJECT_TYPE_OFFSET = 0x14;
+        public const int OBJECT_TYPE_OFFSET = 0x14;
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         delegate int EnumerateVisibleObjectsCallbackVanilla(int filter, ulong guid);
@@ -35,14 +38,14 @@ namespace BloogBot.Game
             if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
             {
                 callbackVanilla = CallbackVanilla;
-                callbackPtr = Marshal.GetFunctionPointerForDelegate(callbackVanilla);
+                callbackPtr = Marshal.GetFunctionPointerForDelegate(callbackVanilla); ;
             }
             else
             {
                 callbackNonVanilla = CallbackNonVanilla;
                 callbackPtr = Marshal.GetFunctionPointerForDelegate(callbackNonVanilla);
             }
-            
+
         }
 
         static public LocalPlayer Player { get; private set; }
@@ -66,7 +69,15 @@ namespace BloogBot.Game
         static public bool IsLoggedIn => Functions.GetPlayerGuid() > 0;
 
         static public bool IsGrouped => GetPartyMembers().Count() > 0;
+        static public byte ReadDataAtPtrAndOffset(IntPtr pointer, int offset)
+        {
+            // this is weird and throws an exception right after entering world,
+            // so we catch and ignore the exception to avoid console noise
 
+            var ptr = MemoryManager.ReadIntPtr(pointer);
+            return MemoryManager.ReadByte(IntPtr.Add(ptr, offset));
+
+        }
         static public string ZoneText
         {
             // this is weird and throws an exception right after entering world,
@@ -241,7 +252,7 @@ namespace BloogBot.Game
         {
             ThreadSynchronizer.RunOnMainThread(() =>
             {
-                if (IsLoggedIn)
+                if (Functions.GetPlayerGuid() > 0)
                 {
                     playerGuid = Functions.GetPlayerGuid();
                     ObjectsBuffer.Clear();
@@ -268,6 +279,13 @@ namespace BloogBot.Game
 
                         UpdateProbe();
                     }
+                } else
+                {
+                    probe.TargetCreatureType = string.Empty;
+                    probe.TargetPosition = string.Empty;
+                    probe.TargetFactionId = string.Empty;
+                    probe.TargetIsCasting = string.Empty;
+                    probe.TargetIsChanneling = string.Empty;
                 }
             });
         }
@@ -328,6 +346,10 @@ namespace BloogBot.Game
         static void UpdateProbe()
         {
             if (Player != null)
+                return;
+
+            var target = Units.FirstOrDefault(u => u.Guid == Player.TargetGuid);
+            if (target != null)
             {
                 // hit killswitch if player is in GM Island
                 if (MinimapZoneText == "GM Island" && !KillswitchTriggered)
@@ -342,20 +364,24 @@ namespace BloogBot.Game
                 probe.CurrentPosition = Player.Position.ToString();
                 probe.CurrentZone = MinimapZoneText;
 
-                var target = Units.FirstOrDefault(u => u.Guid == Player.TargetGuid);
-                if (target != null)
-                {
-                    probe.TargetName = target.Name;
-                    probe.TargetClass = Player.LuaCallWithResults($"{{0}} = UnitClass(\"target\")")[0];
-                    probe.TargetCreatureType = target.CreatureType.ToString();
-                    probe.TargetPosition = target.Position.ToString();
-                    probe.TargetRange = Player.Position.DistanceTo(target.Position).ToString();
-                    probe.TargetFactionId = target.FactionId.ToString();
-                    probe.TargetIsCasting = target.IsCasting.ToString();
-                    probe.TargetIsChanneling = target.IsChanneling.ToString();
-                }
-
                 probe.Callback();
+                probe.TargetName = target.Name;
+                probe.TargetClass = Player.LuaCallWithResults($"{{0}} = UnitClass(\"target\")")[0];
+                probe.TargetCreatureType = target.CreatureType.ToString();
+                probe.TargetPosition = target.Position.ToString();
+                probe.TargetFactionId = target.FactionId.ToString();
+                probe.TargetIsCasting = target.IsCasting.ToString();
+                probe.TargetIsChanneling = target.IsChanneling.ToString();
+            }
+            else
+            {
+                probe.TargetName = string.Empty;
+                probe.TargetClass = string.Empty;
+                probe.TargetCreatureType = string.Empty;
+                probe.TargetPosition = string.Empty;
+                probe.TargetFactionId = string.Empty;
+                probe.TargetIsCasting = string.Empty;
+                probe.TargetIsChanneling = string.Empty;
             }
         }
     }

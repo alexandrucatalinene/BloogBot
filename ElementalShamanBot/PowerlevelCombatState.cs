@@ -36,7 +36,7 @@ namespace ElementalShamanBot
         readonly string[] fireImmuneCreatures = new[] { "Rogue Flame Spirit", "Burning Destroyer" };
         readonly string[] natureImmuneCreatures = new[] { "Swirling Vortex", "Gusting Vortex", "Dust Stormer" };
 
-        
+
         Position targetLastPosition;
 
         bool noLos;

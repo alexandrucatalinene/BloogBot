@@ -69,6 +69,8 @@ namespace BloogBot.Game.Objects
 
         public UnitFlags UnitFlags => (UnitFlags)MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_UnitFlagsOffset);
 
+        public NpcMarkerFlags NpcMarkerFlags => (NpcMarkerFlags)MemoryManager.ReadByte(IntPtr.Add(Pointer, MemoryAddresses.WoWUnit_NpcMarkerOffset));
+
         public bool IsInCombat => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_IN_COMBAT);
 
         public bool IsStunned => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_STUNNED);
@@ -76,6 +78,8 @@ namespace BloogBot.Game.Objects
         public ulong SummonedByGuid => MemoryManager.ReadUlong(GetDescriptorPtr() + MemoryAddresses.WoWUnit_SummonedByGuidOffset);
 
         public int FactionId => MemoryManager.ReadInt(GetDescriptorPtr() + MemoryAddresses.WoWUnit_FactionIdOffset);
+
+        public bool NotAttackable => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_NON_ATTACKABLE);
 
         public bool IsFacing(Position position) => Math.Abs(GetFacingForPosition(position) - Facing) < 0.05f;
 
@@ -119,6 +123,8 @@ namespace BloogBot.Game.Objects
 
         public bool IsFalling => MovementFlags.HasFlag(MovementFlags.MOVEFLAG_FALLING);
 
+        public bool IsMounted => UnitFlags.HasFlag(UnitFlags.UNIT_FLAG_MOUNT);
+
         public bool IsPet => SummonedByGuid > 0;
 
         public CreatureType CreatureType => Functions.GetCreatureType(Pointer);
@@ -127,12 +133,52 @@ namespace BloogBot.Game.Objects
 
         public virtual CreatureRank CreatureRank => (CreatureRank)Functions.GetCreatureRank(Pointer);
 
+        public int AggroDistance
+        {
+            get
+            {
+                int num2;
+
+                if (this.UnitReaction <= UnitReaction.Unfriendly && !this.NotAttackable)
+                {
+                    int num = 18;
+                    if (ObjectManager.Player.Level > this.Level)
+                    {
+                        num -= Math.Abs((int)(ObjectManager.Player.Level - this.Level));
+                    }
+                    if (ObjectManager.Player.Level < this.Level)
+                    {
+                        num += Math.Abs((int)(ObjectManager.Player.Level - this.Level));
+                    }
+                    if (this.CreatureRank == CreatureRank.Elite)
+                    {
+                        num += 3;
+                    }
+                    if (num < 5)
+                    {
+                        num = 5;
+                    }
+                    if (num > 45)
+                    {
+                        num = 45;
+                    }
+                    num2 = num;
+                }
+                else
+                {
+                    num2 = 0;
+                }
+
+                return num2;
+            }
+        }
+
         public Spell GetSpellById(int spellId)
         {
             if (ClientHelper.ClientVersion == ClientVersion.Vanilla)
             {
                 var spellsBasePtr = MemoryManager.ReadIntPtr((IntPtr)0x00C0D788);
-                var spellPtr =  MemoryManager.ReadIntPtr(spellsBasePtr + spellId * 4);
+                var spellPtr = MemoryManager.ReadIntPtr(spellsBasePtr + spellId * 4);
 
                 var spellCost = MemoryManager.ReadInt(spellPtr + 0x0080);
 
@@ -180,7 +226,7 @@ namespace BloogBot.Game.Objects
                                 buffs.Add(GetSpellById(spellId));
                             }
                         }
-                        
+
                     }
                     return buffs;
                 }

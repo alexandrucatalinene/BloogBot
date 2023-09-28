@@ -130,5 +130,7 @@ namespace BloogBot
                 return unitReactions;
             }
         }
+
+        public bool DiscordBotEnabled { get; set; } = false;
     }
 }

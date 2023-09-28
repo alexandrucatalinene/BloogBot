@@ -1,6 +1,6 @@
 ﻿namespace Bootstrapper
 {
-    class BootstrapperSettings
+    public class BootstrapperSettings
     {
         public string PathToWoW { get; set; }
     }

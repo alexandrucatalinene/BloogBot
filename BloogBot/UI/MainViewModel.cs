@@ -34,7 +34,7 @@ namespace BloogBot.UI
 
             Logger.Initialize(botSettings);
             Repository.Initialize(botSettings.DatabasePath);
-            //DiscordClientWrapper.Initialize(botSettings);
+            SqliteRepository.Initialize();
             TravelPathGenerator.Initialize(() =>
             {
                 OnPropertyChanged(nameof(SaveTravelPathCommandEnabled));

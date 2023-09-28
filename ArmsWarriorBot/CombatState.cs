@@ -3,7 +3,6 @@ using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -50,7 +49,7 @@ namespace ArmsWarriorBot
             if (base.Update())
                 return;
 
-            var aggressors = ObjectManager.Aggressors;
+            var aggressors = ObjectManager.Aggressors.ToList();
 
             // Use these abilities when fighting any number of mobs.   
             TryUseAbility(Bloodrage, condition: target.HealthPercent > 50);

@@ -1,5 +1,4 @@
 ﻿using Binarysharp.Assemblers.Fasm;
-using BloogBot.Game;
 using BloogBot.Game.Cache;
 using System;
 using System.Diagnostics;
@@ -39,6 +38,9 @@ namespace BloogBot
 
         [DllImport("kernel32.dll")]
         static extern IntPtr OpenProcess(ProcessAccessFlags desiredAccess, bool inheritHandle, int processId);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool ReadProcessMemory(int hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesRead);
 
         [DllImport("kernel32.dll")]
         static extern bool WriteProcessMemory(
@@ -176,7 +178,6 @@ namespace BloogBot
         static public string ReadString(IntPtr address, int size = 512)
         {
             if (address == IntPtr.Zero)
-                return string.Empty;
 
             try
             {
@@ -196,6 +197,8 @@ namespace BloogBot
                 Logger.Log("Access Violation on " + address.ToString("X") + " with type string");
                 return string.Empty;
             }
+
+            return string.Empty;
         }
 
         [HandleProcessCorruptedStateExceptions]
@@ -273,6 +276,31 @@ namespace BloogBot
             // now set the memory to be executable
             VirtualProtect(address, bytes.Length, (uint)protection, out uint _);
         }
+        
+        static internal IntPtr OpenProcess()
+        {
+
+            var access = ProcessAccessFlags.PROCESS_CREATE_THREAD |
+                         ProcessAccessFlags.PROCESS_QUERY_INFORMATION |
+                         ProcessAccessFlags.PROCESS_SET_INFORMATION |
+                         ProcessAccessFlags.PROCESS_TERMINATE |
+                         ProcessAccessFlags.PROCESS_VM_OPERATION |
+                         ProcessAccessFlags.PROCESS_VM_READ |
+                         ProcessAccessFlags.PROCESS_VM_WRITE |
+                         ProcessAccessFlags.SYNCHRONIZE;
+            Process[] processes = Process.GetProcessesByName("WoW");
+            return OpenProcess(access, false, processes[0].Id);
+        }
+        static internal byte[] ReadProcessMemory(int offset)
+        {
+            int bytesRead = 0;
+            byte[] buffer = new byte[64];
+
+
+            // 0x0046A3B8 is the address where I found the string, replace it with what you found
+            ReadProcessMemory((int)OpenProcess(), offset, buffer, buffer.Length, ref bytesRead);
+            return buffer;
+        }
 
         static internal IntPtr InjectAssembly(string hackName, string[] instructions)
         {
@@ -302,7 +330,7 @@ namespace BloogBot
             var hack = new Hack(hackName, start, byteCode);
             HackManager.AddHack(hack);
 
-            return start;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+            return start;
         }
 
         static internal void InjectAssembly(string hackName, uint ptr, string instructions)

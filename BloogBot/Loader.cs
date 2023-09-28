@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Threading;
+﻿using System.Threading;
 using BloogBot.UI;
 
 namespace BloogBot

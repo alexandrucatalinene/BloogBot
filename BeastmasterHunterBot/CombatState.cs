@@ -1,12 +1,10 @@
 ﻿// Friday owns this file!
 
-using BloogBot;
 using BloogBot.AI;
 using BloogBot.AI.SharedStates;
 using BloogBot.Game;
 using BloogBot.Game.Enums;
 using BloogBot.Game.Objects;
-using System;
 using System.Collections.Generic;
 
 namespace BeastMasterHunterBot
@@ -43,7 +41,6 @@ namespace BeastMasterHunterBot
         {
             player = ObjectManager.Player;
             this.target = target;
-            //pet = ObjectManager.Pet;
         }
 
         public new void Update()
