@@ -489,6 +489,11 @@ namespace BloogBot.Game.Objects
             return false;
         }
 
+        public void EquipItemByName(string name)
+        {
+            LuaCall(string.Format("EquipItemByName({0})", name));
+        }
+
         private static string FormatLua(string str, params object[] names)
         {
             return string.Format(str, names.Select(s => s.ToString().Replace("'", "\\'").Replace("\"", "\\\"")).ToArray());

@@ -240,6 +240,7 @@
     <Compile Include="Navigation.cs" />
     <Compile Include="Npc.cs" />
     <Compile Include="Probe.cs" />
+    <Compile Include="QuestRepository.cs" />
     <Compile Include="Repository.cs" />
     <Compile Include="SignalEventManager.cs" />
     <Compile Include="SqliteRepository.cs" />
@@ -308,6 +309,7 @@
     <Content Include="Fasm.NET.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="QuestSQLSchema.SQL" />
     <Content Include="TSqlSchema.SQL">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
